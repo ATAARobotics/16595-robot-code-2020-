@@ -30,9 +30,11 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.rev.RevSPARKMini;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -63,11 +65,15 @@ public class Mechanum_Skybot extends LinearOpMode {
     private DcMotor leftfrontDrive = null;
     private DcMotor rightfrontDrive = null;
     private NormalizedColorSensor colorSensor=null;
-    private double maxPower = 0.5;
+    private double maxPower = 0.25;
     private Servo servoArm = null;
     private double servoArmDown =0.5;
     private double servoArmUp =-0.5;
-
+    private DcMotorSimple leftIntake = null;
+    private DcMotorSimple rightIntake = null;
+    private double leftIntakePower = 0;
+    private double rightIntakePower = 0;
+    private boolean intake = false;
 
     @Override
     public void runOpMode() {
@@ -87,6 +93,8 @@ public class Mechanum_Skybot extends LinearOpMode {
         leftfrontDrive  = hardwareMap.get(DcMotor.class, "leftfrontdrive");
         rightfrontDrive = hardwareMap.get(DcMotor.class, "rightfrontdrive");
         servoArm = hardwareMap.get(Servo.class, "servoarm");
+        leftIntake = hardwareMap.get(DcMotorSimple.class, "leftIntake");
+        rightIntake = hardwareMap.get(DcMotorSimple.class, "rightIntake");
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "coloursensor");
         // Read the sensor
@@ -100,6 +108,10 @@ public class Mechanum_Skybot extends LinearOpMode {
         rightfrontDrive.setDirection(DcMotor.Direction.FORWARD);
         servoArm.setPosition(servoArmDown);
         servoArm.setDirection(Servo.Direction.REVERSE) ;
+        leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -138,8 +150,8 @@ public class Mechanum_Skybot extends LinearOpMode {
             }
             // Mechanum drive to go side ways
             double drive = -gamepad1.left_stick_y;
-            double turn  =  -gamepad1.left_stick_x;
-            double mechanum = gamepad1.right_stick_x;
+            double turn  =  gamepad1.left_stick_x;
+            double mechanum = -gamepad1.right_stick_x;
             backleftPower   = Range.clip(drive + turn + mechanum, -1.0*maxPower, maxPower) ;
             backrightPower   = Range.clip(drive - turn + mechanum, -1.0*maxPower, maxPower) ;
             frontleftPower   = Range.clip(drive + turn - mechanum, -1.0*maxPower, maxPower) ;
@@ -150,6 +162,37 @@ public class Mechanum_Skybot extends LinearOpMode {
             rightbackDrive.setPower(backrightPower);
             leftfrontDrive.setPower(frontleftPower);
             rightfrontDrive.setPower(frontrightPower);
+
+            //set up intake power
+            if(gamepad1.x) {
+                intake = true;
+                leftIntakePower = 1;
+                rightIntakePower = 1;
+                leftIntake.setPower(leftIntakePower);
+                rightIntake.setPower(rightIntakePower);
+            } else {
+                leftIntakePower = 0;
+                rightIntakePower = 0;
+            }
+            if(gamepad1.y){
+                intake = true;
+                leftIntakePower = -1;
+                rightIntakePower = -1;
+                leftIntake.setPower(leftIntakePower);
+                rightIntake.setPower(rightIntakePower);
+            } else {
+                leftIntakePower = 0;
+                rightIntakePower = 0;
+            }
+            if (gamepad1.right_bumper){
+                intake = false;
+                leftIntakePower = 0;
+                rightIntakePower = 0;
+                leftIntake.setPower(leftIntakePower);
+                rightIntake.setPower(rightIntakePower);
+            }
+            leftIntake.setPower(0);
+            rightIntake.setPower(0);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -166,6 +209,8 @@ public class Mechanum_Skybot extends LinearOpMode {
                     .addData("r", "%.3f", colors.red)
                     .addData("g", "%.3f", colors.green)
                     .addData("b", "%.3f", colors.blue);
+            telemetry.addData("Power on left intake", leftIntakePower);
+            telemetry.addData("Power on right intake", rightIntakePower);
 
             /** We also display a conversion of the colors to an equivalent Android color integer.
              * @see Color */
