@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -20,7 +21,7 @@ public class ColorSensorTest extends LinearOpMode {
     private DcMotor rightbackDrive = null;
     private DcMotor leftfrontDrive = null;
     private DcMotor rightfrontDrive = null;
-    private NormalizedColorSensor colorSensor=null;
+    private ColorSensor colorSensor=null;
     private double maxPower = 0.25;
     private Servo servoArm = null;
     private double servoArmDown =0.5;
@@ -36,13 +37,9 @@ public class ColorSensorTest extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        // values is a reference to the hsvValues array.
-        float[] hsvValues = new float[3];
-        final float values[] = hsvValues;
 
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "coloursensor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "coloursensor");
         // Read the sensor
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -51,29 +48,17 @@ public class ColorSensorTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            colors = colorSensor.getNormalizedColors();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            Color.colorToHSV(colors.toColor(), hsvValues);
-            telemetry.addLine()
-                    .addData("H", "%.3f", hsvValues[0])
-                    .addData("S", "%.3f", hsvValues[1])
-                    .addData("V", "%.3f", hsvValues[2]);
-            telemetry.addLine()
-                    .addData("a", "%.3f", colors.alpha)
-                    .addData("r", "%.3f", colors.red)
-                    .addData("g", "%.3f", colors.green)
-                    .addData("b", "%.3f", colors.blue);
             telemetry.addData("Power on left intake", leftIntakePower);
             telemetry.addData("Power on right intake", rightIntakePower);
 
             /** We also display a conversion of the colors to an equivalent Android color integer.
              * @see Color */
-            int color = colors.toColor();
             telemetry.addLine("raw Android color: ")
-                    .addData("a", "%02x", Color.alpha(color))
-                    .addData("r", "%02x", Color.red(color))
-                    .addData("g", "%02x", Color.green(color))
-                    .addData("b", "%02x", Color.blue(color));
+                    .addData("a", "%02x", colorSensor.alpha())
+                    .addData("r", "%02x", colorSensor.red())
+                    .addData("g", "%02x", colorSensor.green())
+                    .addData("b", "%02x", colorSensor.blue());
 
 
             telemetry.update();

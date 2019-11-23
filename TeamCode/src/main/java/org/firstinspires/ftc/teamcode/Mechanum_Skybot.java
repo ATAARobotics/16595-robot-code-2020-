@@ -37,7 +37,7 @@ public class Mechanum_Skybot extends LinearOpMode {
         private DcMotor leftfrontDrive = null;
         private DcMotor rightfrontDrive = null;
         private NormalizedColorSensor colorSensor=null;
-        private double maxPower = 0.25;
+        private double maxPower = 0.5;
         private Servo servoArm = null;
         private double servoArmDown =0.5;
         private double servoArmUp =-0.5;
@@ -138,8 +138,8 @@ public class Mechanum_Skybot extends LinearOpMode {
             //set up intake power
             if(gamepad1.x) {
                 intake = true;
-                leftIntakePower = 1;
-                rightIntakePower = 1;
+                leftIntakePower = 0.5;
+                rightIntakePower = 0.5;
                 leftIntake.setPower(leftIntakePower);
                 rightIntake.setPower(rightIntakePower);
             } else {
@@ -148,8 +148,8 @@ public class Mechanum_Skybot extends LinearOpMode {
             }
             if(gamepad1.y){
                 intake = true;
-                leftIntakePower = -1;
-                rightIntakePower = -1;
+                leftIntakePower = -0.5;
+                rightIntakePower = -0.5;
                 leftIntake.setPower(leftIntakePower);
                 rightIntake.setPower(rightIntakePower);
             } else {

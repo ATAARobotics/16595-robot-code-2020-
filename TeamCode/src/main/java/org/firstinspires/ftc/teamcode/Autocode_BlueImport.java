@@ -5,6 +5,7 @@ import android.graphics.Color;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -22,7 +23,7 @@ public class Autocode_BlueImport  extends LinearOpMode {
     private DcMotor rightbackDrive = null;
     private DcMotor leftfrontDrive = null;
     private DcMotor rightfrontDrive = null;
-    private NormalizedColorSensor colorSensor=null;
+    private ColorSensor colorSensor=null;
     private double maxPower = 0.1;
     private Servo servoArm = null;
     private double servoArmDown =0.5;
@@ -42,9 +43,7 @@ public class Autocode_BlueImport  extends LinearOpMode {
         // values is a reference to the hsvValues array.
         float[] hsvValues = new float[3];
         final float values[] = hsvValues;
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "coloursensor");
-        // Read the sensor
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        colorSensor = hardwareMap.get(ColorSensor.class, "coloursensor");
 
         // Initialize the hardware variables. Note that the strings used here as parameters
     // to 'get' must correspond to the names assigned during the robot configuration
@@ -57,7 +56,7 @@ public class Autocode_BlueImport  extends LinearOpMode {
     leftIntake = hardwareMap.get(DcMotorSimple.class, "leftIntake");
     rightIntake = hardwareMap.get(DcMotorSimple.class, "rightIntake");
 
-    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "coloursensor");
+    colorSensor = hardwareMap.get(ColorSensor.class, "coloursensor");
     // Read the sensor
     //NormalizedRGBA colors = colorSensor.getNormalizedColors();
 
@@ -106,10 +105,14 @@ public class Autocode_BlueImport  extends LinearOpMode {
 
             // Determine new target position, and pass to motor controller
             newRightTarget = rightfrontDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-            rightfrontDrive.setTargetPosition(newRightTarget);
+            //rightfrontDrive.setTargetPosition(newRightTarget);
+//            leftfrontDrive.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            rightfrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            rightfrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            leftfrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            rightfrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            setMotor(rightfrontDrive,newRightTarget);
 
             // reset the timeout time and start motion.
             runtime.reset();
@@ -129,21 +132,20 @@ public class Autocode_BlueImport  extends LinearOpMode {
                     (rightfrontDrive.isBusy())) {
 
                 // Display it for the driver.
-                telemetry.addData("Path1", "Running to %7d", newRightTarget);
-                telemetry.addData("Path2", "Running at %7d", rightfrontDrive.getCurrentPosition());
-                telemetry.update();
-
+                displayDriver(newRightTarget);
             }
 
+            DcMotor[] all = {rightfrontDrive, leftfrontDrive, rightbackDrive, leftbackDrive};
+            resetMotors(all, rightfrontDrive);
             // Stop all motion;
-            leftfrontDrive.setPower(0);
-            rightfrontDrive.setPower(0);
-            leftbackDrive.setPower(0);
-            rightbackDrive.setPower(0);
+//            leftfrontDrive.setPower(0);
+//            rightfrontDrive.setPower(0);
+//            leftbackDrive.setPower(0);
+//            rightbackDrive.setPower(0);
 
             // Turn off RUN_TO_POSITION
-            rightfrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+//            rightfrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            leftfrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             //  sleep(250);   // optional pause after each move
         }
     }
@@ -167,10 +169,12 @@ public class Autocode_BlueImport  extends LinearOpMode {
 
             // Determine new target position, and pass to motor controller
             newRightTarget = rightfrontDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
-            rightfrontDrive.setTargetPosition(newRightTarget);
+//            rightfrontDrive.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            rightfrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            rightfrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            setMotor(rightfrontDrive, newRightTarget);
 
             // reset the timeout time and start motion.
             runtime.reset();
@@ -197,20 +201,20 @@ public class Autocode_BlueImport  extends LinearOpMode {
                 }
 
                 // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d",  newRightTarget);
-                telemetry.addData("Path2",  "Running at %7d", rightfrontDrive.getCurrentPosition());
-                telemetry.update();
+                displayDriver(newRightTarget);
+
 
             }
-
+            DcMotor[] all = {rightfrontDrive, leftfrontDrive, rightbackDrive, leftbackDrive};
+            resetMotors(all, rightfrontDrive);
             // Stop all motion;
-            leftfrontDrive.setPower(0);
-            rightfrontDrive.setPower(0);
-            leftbackDrive.setPower(0);
-            rightbackDrive.setPower(0);
+//            leftfrontDrive.setPower(0);
+//            rightfrontDrive.setPower(0);
+//            leftbackDrive.setPower(0);
+//            rightbackDrive.setPower(0);
 
             // Turn off RUN_TO_POSITION
-            rightfrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            rightfrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             //  sleep(250);   // optional pause after each move
         }
@@ -218,17 +222,45 @@ public class Autocode_BlueImport  extends LinearOpMode {
 
     // Color change
     private boolean sampleColor(int color) {
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
-        if(color == Color.RED) {
-            if (colors.red <= 8 && colors.red >= 2) return true;
+        colorSensor.enableLed(true);
+        if(colorSensor.red() <= 8 && colorSensor.red() >= 2) {
+            colorSensor.enableLed(false);
+            return true;
         }
-        else if(color == Color.BLUE) {
-            if (colors.blue <= 3 && colors.blue >= 2) return true;
-        }
-        else if(color == Color.GREEN) {
-            if (colors.green <= 6 && colors.green >= 3) return true;
+        else if(colorSensor.blue() <= 3 && colorSensor.blue() >= 2) {
+            colorSensor.enableLed(false);
+            return true;
 
         }
+        else  if(colorSensor.red() <= 6 && colorSensor.red() >= 3) {
+            colorSensor.enableLed(false);
+            return true;
+
+        }
+        colorSensor.enableLed(false);
         return false;
+    }
+
+    public void displayDriver(int target){
+        telemetry.addData("Path1",  "Running to %7d",  target);
+        telemetry.addData("Front Right",  (double)rightfrontDrive.getCurrentPosition());
+        telemetry.addData("Front Left",  (double)leftfrontDrive.getCurrentPosition());
+        telemetry.addData("Back Right",  (double)rightbackDrive.getCurrentPosition());
+        telemetry.addData("Back Left",  (double)leftbackDrive.getCurrentPosition());
+        telemetry.addData("Target Position", (double)rightfrontDrive.getTargetPosition());
+        telemetry.update();
+    }
+
+    public void setMotor(DcMotor current, int target){
+        current.setTargetPosition(target);
+        current.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+    }
+
+    public void resetMotors(DcMotor[] all, DcMotor current){
+        for(int i=0;i<all.length;i++) {
+            all[i].setPower(0);
+        }
+        current.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
