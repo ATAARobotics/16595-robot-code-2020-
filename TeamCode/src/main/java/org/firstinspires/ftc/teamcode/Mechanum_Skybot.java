@@ -46,6 +46,12 @@ public class Mechanum_Skybot extends LinearOpMode {
         private double leftIntakePower = 0;
         private double rightIntakePower = 0;
         private boolean intake = false;
+        private DcMotorSimple rightRotate = null;
+        private DcMotorSimple leftRotate = null;
+        private double leftRotatePower = 0;
+        private double rightRotatePower = 0;
+        private boolean rotate = false;
+
 
         @Override
         public void runOpMode() {
@@ -67,6 +73,8 @@ public class Mechanum_Skybot extends LinearOpMode {
         servoArm = hardwareMap.get(Servo.class, "servoarm");
         leftIntake = hardwareMap.get(DcMotorSimple.class, "leftIntake");
         rightIntake = hardwareMap.get(DcMotorSimple.class, "rightIntake");
+        leftRotate = hardwareMap.get(DcMotorSimple.class, "leftRotate");
+        rightRotate = hardwareMap.get(DcMotorSimple.class, "rightRotate");
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "coloursensor");
         // Read the sensor
@@ -82,6 +90,8 @@ public class Mechanum_Skybot extends LinearOpMode {
         servoArm.setDirection(Servo.Direction.REVERSE) ;
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRotate.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -156,7 +166,7 @@ public class Mechanum_Skybot extends LinearOpMode {
                 leftIntakePower = 0;
                 rightIntakePower = 0;
             }
-            if (gamepad1.right_bumper){
+            if (gamepad1.back){
                 intake = false;
                 leftIntakePower = 0;
                 rightIntakePower = 0;
@@ -165,6 +175,38 @@ public class Mechanum_Skybot extends LinearOpMode {
             }
             leftIntake.setPower(0);
             rightIntake.setPower(0);
+
+            //setup rotate power and buttons
+
+            if(gamepad1.right_bumper) {
+                rotate = true;
+                leftRotatePower = 0.6;
+                rightRotatePower = 0.6;
+                leftRotate.setPower(leftRotatePower);
+                rightRotate.setPower(rightRotatePower);
+            } else {
+                leftRotatePower = 0;
+                rightRotatePower = 0;
+            }
+            if(gamepad1.left_bumper){
+                rotate = true;
+                leftRotatePower = -0.6;
+                rightRotatePower = -0.6;
+                leftRotate.setPower(leftRotatePower);
+                rightRotate.setPower(rightRotatePower);
+            } else {
+                leftRotatePower = 0;
+                rightRotatePower = 0;
+            }
+            if (gamepad1.start){
+                rotate = false;
+                leftRotatePower = 0;
+                rightRotatePower = 0;
+                leftRotate.setPower(leftRotatePower);
+                rightRotate.setPower(rightRotatePower);
+            }
+            leftRotate.setPower(0);
+            rightRotate.setPower(0);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
